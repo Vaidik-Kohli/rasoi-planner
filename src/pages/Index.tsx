@@ -7,14 +7,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChefHat, Sparkles, Clock, Users } from "lucide-react";
 import heroImage from "@/assets/hero-indian-meal.jpg";
+import { UserPreferences } from "@/utils/pantryParser";
 
 type AppState = 'input' | 'processing' | 'output';
 
 const Index = () => {
   const [appState, setAppState] = useState<AppState>('input');
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: UserPreferences) => {
     console.log('Form data:', data);
+    setUserPreferences(data);
     setAppState('processing');
   };
 
@@ -24,6 +27,7 @@ const Index = () => {
 
   const handleNewPlan = () => {
     setAppState('input');
+    setUserPreferences(null);
   };
 
   return (
@@ -98,9 +102,9 @@ const Index = () => {
           </div>
         )}
         
-        {appState === 'output' && (
+        {appState === 'output' && userPreferences && (
           <div className="animate-in slide-in-from-bottom-10 duration-500">
-            <MealPlanOutput onNewPlan={handleNewPlan} />
+            <MealPlanOutput preferences={userPreferences} onNewPlan={handleNewPlan} />
           </div>
         )}
       </section>

@@ -7,16 +7,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChefHat, Users, Clock, Flame } from 'lucide-react';
+import { UserPreferences } from '@/utils/pantryParser';
 
 interface PantryInputFormProps {
-  onSubmit: (data: {
-    pantryList: string;
-    cuisine: string;
-    familySize: number;
-    spiceLevel: number;
-    timeConstraint: string;
-    dietType: string;
-  }) => void;
+  onSubmit: (data: UserPreferences) => void;
 }
 
 const CUISINES = [

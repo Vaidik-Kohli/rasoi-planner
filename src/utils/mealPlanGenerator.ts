@@ -1,4 +1,5 @@
 import { PantryItem, UserPreferences, parsePantryList, hasIngredient, getIngredientQuantity } from './pantryParser';
+import { aiService, AIGeneratedMealPlan } from './aiService';
 
 export interface Meal {
   name: string;
@@ -33,6 +34,12 @@ export interface MealPlan {
   shoppingList: ShoppingCategory[];
   totalCost: string;
   pantryUtilization: number;
+  aiInsights?: {
+    nutritionalBalance: string;
+    varietyScore: number;
+    suggestions: string[];
+  };
+  aiPowered?: boolean;
 }
 
 // Recipe database based on common Indian pantry ingredients
@@ -80,7 +87,7 @@ const RECIPE_TEMPLATES = {
     ]
   },
 
-  jeegaRice: {
+  jeeraRice: {
     name: "Jeera Rice",
     baseIngredients: ['rice', 'cumin seeds', 'salt'],
     time: "20 mins",
@@ -119,6 +126,51 @@ const RECIPE_TEMPLATES = {
       "Add onions and cook until golden",
       "Add turmeric, red chili powder, salt",
       "Cook until onions are caramelized"
+    ]
+  },
+
+  // Enhanced recipes that showcase AI capabilities
+  tadkaDal: {
+    name: "Tadka Dal",
+    baseIngredients: ['toor dal', 'turmeric', 'cumin seeds', 'mustard seeds', 'onion', 'tomato'],
+    time: "35 mins",
+    spice: 3,
+    steps: [
+      "Pressure cook dal with turmeric and salt",
+      "Heat oil, add cumin and mustard seeds",
+      "Add chopped onions, cook until golden",
+      "Add tomatoes and cook until soft",
+      "Pour cooked dal and simmer",
+      "Garnish with coriander"
+    ]
+  },
+
+  mixVegCurry: {
+    name: "Mixed Vegetable Curry",
+    baseIngredients: ['potato', 'onion', 'tomato', 'turmeric', 'coriander seeds'],
+    time: "30 mins",
+    spice: 3,
+    steps: [
+      "Chop all vegetables into equal pieces",
+      "Heat oil, add cumin seeds",
+      "Add onions and cook until translucent",
+      "Add tomatoes and spices",
+      "Add vegetables and water",
+      "Simmer until tender"
+    ]
+  },
+
+  khichdi: {
+    name: "Nutritious Khichdi",
+    baseIngredients: ['rice', 'moong dal', 'turmeric', 'cumin seeds'],
+    time: "25 mins",
+    spice: 1,
+    steps: [
+      "Wash rice and dal together",
+      "Heat ghee, add cumin seeds",
+      "Add rice-dal mixture with turmeric",
+      "Add water (1:3 ratio) and salt",
+      "Pressure cook until soft and mushy"
     ]
   }
 };
@@ -246,7 +298,27 @@ function generateShoppingList(
   }));
 }
 
-export function generateMealPlan(preferences: UserPreferences): MealPlan {
+export async function generateMealPlan(preferences: UserPreferences): Promise<MealPlan> {
+  // Try AI-powered generation first
+  try {
+    const aiResult = await aiService.generateMealPlan(preferences);
+    if (aiResult) {
+      console.log('✅ Generated meal plan using AI:', aiService.getServiceStatus());
+      return {
+        ...aiResult,
+        aiPowered: true
+      };
+    }
+  } catch (error) {
+    console.warn('AI generation failed, falling back to rule-based:', error);
+  }
+
+  // Fallback to rule-based generation
+  console.log('📋 Using rule-based meal plan generation');
+  return generateRuleBasedMealPlan(preferences);
+}
+
+function generateRuleBasedMealPlan(preferences: UserPreferences): MealPlan {
   const pantryItems = parsePantryList(preferences.pantryList);
   const usedIngredients = new Set<string>();
   
@@ -286,6 +358,7 @@ export function generateMealPlan(preferences: UserPreferences): MealPlan {
     },
     shoppingList,
     totalCost: `₹${totalCost}`,
-    pantryUtilization
+    pantryUtilization,
+    aiPowered: false
   };
 }

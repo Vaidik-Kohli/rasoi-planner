@@ -27,8 +27,9 @@ export default function AIPlanner() {
         calories: calories === '' ? undefined : Number(calories)
       })
       setPlan(result)
-    } catch (e: any) {
-      setError(e?.message || 'Failed to generate plan')
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to generate plan'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

@@ -135,9 +135,10 @@ Available ingredients: ${ingredients.join(', ')}.
     }
 
     return res.json(validated.data)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err)
-    return res.status(500).json({ error: 'AI service error', details: err?.message })
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+    return res.status(500).json({ error: 'AI service error', details: errorMessage })
   }
 })
 

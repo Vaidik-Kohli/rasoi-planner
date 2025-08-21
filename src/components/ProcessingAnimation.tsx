@@ -11,32 +11,32 @@ interface ProcessingAnimationProps {
 const PROCESSING_STEPS = [
   {
     icon: Database,
-    title: "Parsing your pantry",
-    description: "Converting ingredients to structured format",
+    title: "Analyzing your pantry",
+    description: "AI is understanding your ingredients and preferences",
     duration: 2000
   },
   {
     icon: Bot,
-    title: "Matching recipes",
-    description: "Finding perfect recipes for your ingredients",
+    title: "AI recipe matching",
+    description: "Finding the perfect recipes using machine learning",
     duration: 2500
   },
   {
     icon: ChefHat,
-    title: "Adapting cooking steps",
-    description: "Customizing for your preferences and appliances",
+    title: "Optimizing nutrition",
+    description: "Balancing meals for your family's health goals",
     duration: 2000
   },
   {
     icon: Calendar,
-    title: "Building meal schedule",
-    description: "Creating balanced 7-day plan",
+    title: "Planning weekly schedule",
+    description: "Creating time-efficient cooking schedule",
     duration: 1500
   },
   {
     icon: ShoppingCart,
-    title: "Generating shopping list",
-    description: "Smart recommendations with cost estimates",
+    title: "Generating smart shopping list",
+    description: "AI recommendations with cost optimization",
     duration: 1000
   }
 ];
@@ -167,7 +167,7 @@ export const ProcessingAnimation = ({ onComplete }: ProcessingAnimationProps) =>
         {/* Fun Facts */}
         <div className="mt-8 p-4 bg-gradient-spice/5 rounded-lg border border-accent/20">
           <p className="text-sm text-center text-accent font-medium">
-            💡 Did you know? Our AI considers over 500+ traditional Indian recipes and adapts them to your exact pantry!
+            🤖 Our AI analyzes 1000+ traditional Indian recipes, considering nutrition, regional variations, and family preferences to create your perfect meal plan!
           </p>
         </div>
       </CardContent>

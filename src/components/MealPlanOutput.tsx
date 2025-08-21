@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Clock, Users, Flame, ChefHat, ShoppingCart, Calendar, Utensils } from 'lucide-react';
+import { Clock, Users, Flame, ChefHat, ShoppingCart, Calendar, Utensils, Sparkles } from 'lucide-react';
 import { generateMealPlan } from '@/utils/mealPlanGenerator';
 import { UserPreferences } from '@/utils/pantryParser';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 interface MealPlanOutputProps {
   preferences: UserPreferences;
@@ -14,8 +14,36 @@ interface MealPlanOutputProps {
 }
 
 export const MealPlanOutput = ({ preferences, onNewPlan }: MealPlanOutputProps) => {
-  // Generate meal plan based on actual user preferences
-  const mealPlan = useMemo(() => generateMealPlan(preferences), [preferences]);
+  const [mealPlan, setMealPlan] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const generatePlan = async () => {
+      setIsLoading(true);
+      try {
+        const plan = await generateMealPlan(preferences);
+        setMealPlan(plan);
+      } catch (error) {
+        console.error('Error generating meal plan:', error);
+        // You could add error handling UI here
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generatePlan();
+  }, [preferences]);
+
+  if (isLoading || !mealPlan) {
+    return (
+      <div className="w-full max-w-6xl mx-auto flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Generating your meal plan...</p>
+        </div>
+      </div>
+    );
+  }
   const renderSpiceLevel = (level: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
       <Flame 
@@ -52,6 +80,12 @@ export const MealPlanOutput = ({ preferences, onNewPlan }: MealPlanOutputProps) 
                 <Flame className="w-3 h-3 mr-1" />
                 Spice Level {preferences.spiceLevel}/5
               </Badge>
+              {mealPlan.aiPowered && (
+                <Badge variant="secondary" className="text-primary bg-green-500">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  AI-Enhanced
+                </Badge>
+              )}
             </div>
           </div>
         </CardContent>
@@ -219,6 +253,55 @@ export const MealPlanOutput = ({ preferences, onNewPlan }: MealPlanOutputProps) 
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* AI Insights Section */}
+      {mealPlan.aiInsights && (
+        <Card className="border-2 border-green-200 bg-green-50/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-800">
+              <Sparkles className="w-5 h-5" />
+              AI Nutritionist Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-green-700 mb-2">Nutritional Balance</h4>
+                <p className="text-sm text-green-600">{mealPlan.aiInsights.nutritionalBalance}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-green-700 mb-2">Variety Score</h4>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-green-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-500 rounded-full h-2 transition-all duration-500"
+                      style={{ width: `${(mealPlan.aiInsights.varietyScore / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-green-700">
+                    {mealPlan.aiInsights.varietyScore}/5
+                  </span>
+                </div>
+              </div>
+
+              {mealPlan.aiInsights.suggestions.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-green-700 mb-2">Smart Suggestions</h4>
+                  <ul className="space-y-1">
+                    {mealPlan.aiInsights.suggestions.map((suggestion, i) => (
+                      <li key={i} className="text-sm text-green-600 flex items-start gap-2">
+                        <span className="text-green-400 mt-1">•</span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center">
